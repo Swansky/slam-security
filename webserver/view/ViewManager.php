@@ -9,7 +9,7 @@ class ViewManager
     static string $cache_path = 'cache/';
     static bool $cache_enabled = FALSE;
 
-    static function view($file, $data = array())
+    static function view($file, $data = array()): void
     {
         $file = self::BASE_PATH_TEMPLATE . $file . ".html";
         $cached_file = self::cache($file);

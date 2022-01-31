@@ -38,7 +38,7 @@ class AuthController extends Controller
     {
 
         if (isset($_SESSION['utilisateur_id'])) {
-            Router::redirectTo('home');
+            Router::RedirectTo('home');
         }
         $username = ParamUtils::findPOSTParam('username');
         $password = ParamUtils::findPOSTParam('password');
@@ -64,7 +64,7 @@ class AuthController extends Controller
         session_destroy();
         unset($_COOKIE["token"]);
         header("Location:login");
-        Router::redirectTo('login');
+        Router::RedirectTo('login');
         unset($this);
     }
 

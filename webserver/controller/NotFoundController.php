@@ -1,21 +1,22 @@
 <?php
 
 
-class NotFoundController extends Controller
+class NotFoundController implements Controller
 {
-    /**
-     * @throws Exception
-     */
+
     public function loadView()
     {
         ViewManager::view("notFound-template", []);
     }
 
-    /**
-     * @throws Exception
-     */
-    public function default()
+
+    public function default(): void
     {
         $this->loadView();
+    }
+
+    public function setArgs(array $args = array())
+    {
+        //useless
     }
 }

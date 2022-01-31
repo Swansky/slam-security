@@ -1,11 +1,11 @@
 <?php
-require_once('Settings.php');
+require_once('class/Settings.php');
 spl_autoload_register( function($className){
 
     $BASE_PATH = Settings::BASE_PATH;
 
     if(!isset($BASE_PATH)){
-        throw new \Exception("Autoload Exception : Basepath not defined", 1);
+        throw new Exception("Autoload Exception : Basepath not defined", 1);
     }
 
     $dirList = ['view', 'model', 'controller', 'utils', 'class'];
@@ -22,7 +22,7 @@ spl_autoload_register( function($className){
         }
     }
     if(! $classLoaded){
-        throw new \Exception("Autoload Exception : class ". $className." is not load", 1);
+        throw new Exception("Autoload Exception : class ". $className." is not load", 1);
     }
 
 

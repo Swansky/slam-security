@@ -1,20 +1,23 @@
 <?php
 
-class HomeController extends Controller
+class HomeController implements Controller
 {
-    /**
-     * @throws Exception
-     */
+    private array $args = array();
+
     public function loadView()
     {
         ViewManager::view("home-template", []);
     }
 
-    /**
-     * @throws Exception
-     */
+
     public function default()
     {
+        var_dump("homeController");
         $this->loadView();
+    }
+
+    public function setArgs(array $args = array())
+    {
+        $this->args = $args;
     }
 }

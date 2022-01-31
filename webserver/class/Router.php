@@ -1,206 +1,97 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Router de l'application
- * @property string $currentUrl
- * @property Controller $controller
- * @property string $controllerName
- * @property string $controllerPath
- * @property string $actionName
- * @property array $urlParams
- */
+
 class Router
 {
-    private string $currentUrl;
-    private Controller $controller;
-    private string $controllerName;
-    private string $controllerPath;
-    private string $actionName;
-    private array $urlParams;
-    
-    /**
-     * Constructeur de la classe Router
-     * @return void
-     */
+    private AuthManager $authManager;
+
     public function __construct()
     {
-        $this->urlParams = [];
-        $this->controllerPath = '';
-        $this->controller = new Controller();
-        $this->currentUrl = $_SERVER['REQUEST_URI'];
-        $this->actionName = '';
-        $this->controllerName = '';
+        $this->authManager = AuthManager::getInstance();
         $this->routing();
     }
-    
-    /**
-     * Méthode effectuant le routing de l'application
-     * @return void
-     */
-    private function routing()
+
+    private function routing(): void
     {
-        if ($this->isConnected()) {
-            if ($this->decodeUrl()) {
+        if ($this->authManager->isConnected()) {
+            $decodedURL = $this->decodeURL();
+            $this->callController($decodedURL);
+        } else {
+            Router::RedirectTo('auth', 'login');
+        }
+    }
 
-                $this->setControllerPath();
-                if ($this->isControllerExist()) {
+    private function decodeURL(): ?DecodedURL
+    {
+        $decodedURL = new DecodedURL();
+        $currentUrl = $_SERVER['REQUEST_URI'];
+        if ($currentUrl === '/') {
+            $decodedURL->setControllerName("Home");
+        } else {
+            if (str_ends_with($currentUrl, "/")) {
+                $currentUrl = substr($currentUrl, 0, -1);
+            }
 
-                    $this->callController();
-
-                    if ($this->isActionExist()) {
-                        $this->callAction();
-                    } else if ($this->actionName === '') {
-                        Router::redirectTo($this->controllerName);
-                        return;
-                    } else {
-                        Router::redirectTo('NotFound');
-                        return;
+            $url_split = explode("/", substr($currentUrl, 1));
+            $decodedURL->setControllerName($url_split[0]);
+            if (sizeof($url_split) > 1) {
+                $decodedURL->setActionName($url_split[1]);
+                if (sizeof($url_split) > 2) {
+                    $param = array();
+                    for ($i = 2; $i <= sizeof($url_split); $i++) {
+                        $param[] = $url_split[$i];
                     }
-                } else {
-                    Router::redirectTo('NotFound');
-                    return;
+                    $decodedURL->setParam($param);
                 }
             }
         }
-        else{
-            Router::redirectTo('auth','login');
-            return;
-        }
+
+        return $decodedURL;
     }
 
-    // TODO: à compléter pour gérer les paramètres dans l'URL
-    /**
-     * Méthode permettant décoder la route et permet d'en déduire le nom du controller et l'action associé
-     * @return bool
-     */
-    private function decodeUrl(): bool
+    private static function callController(DecodedURL $decodedURL): void
     {
-        $url_split = [];
-        if ($this->currentUrl === '/') {
-            Router::redirectTo('Home');
-            return false;
+        if ($decodedURL->getControllerName() === '' || !Router::IsControllerExist($decodedURL->getControllerName())) {
+            $controller = new NotFoundController();
+            $controller->default();
+
         } else {
-            $url_split = explode("/", substr($this->currentUrl, 1));
-            if ($url_split[0] || !empty($url_split[0])) {
-                $this->controllerName = $url_split[0];
-                $this->controllerName = $this->controllerName . "Controller";
-                if (sizeof($url_split) > 1) {
-                    if (isset($url_split[1])) {
-                        $this->actionName = $url_split[1];
-                        for ($i = 2; $i < count($url_split); $i++) {
-                            array_push($this->urlParams, $i);
-                        }
-                        return true;
-                    } else {
-                        $this->actionName = 'default';
-                        return true;
-                    }
-                } else {
-                    $this->actionName = 'default';
-                    return true;
-                }
-            } 
-            else{
-                Router::redirectTo('NotFound');
-                return false;
+            $controllerClassName = Router::GetControllerClassName($decodedURL->getControllerName());
+            /** @var Controller $controller */
+            $controller = new $controllerClassName();
+            if (Router::IsValidAction($controller, $decodedURL->getActionName())) {
+                $actionName = $decodedURL->getActionName();
+                $controller->$actionName();
+                $controller->setArgs($decodedURL->getParam());
+            } else {
+                $controller->default();
             }
-
-        }
-        return false;
-    }
-    
-    /**
-     * Méthode permettant de tester si un controller existe
-     * @return bool
-     */
-    public function isControllerExist(): bool
-    {
-        if (file_exists($this->controllerPath)) {
-            return true;
-        } else {
-            return false;
         }
     }
 
-        
-    /**
-     * Méthode permetant de vérifier si l'action existe dans le controller
-     * @return bool
-     */
-    public function isActionExist(): bool
+    public static function IsControllerExist(string $controllerName): bool
     {
-        if (method_exists($this->controller, $this->actionName)) {
-            return true;
-        }
-        else if($this->actionName === "" || $this->actionName === null)
-        {
-            $this->actionName = 'default';
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
+        return file_exists(Settings::BASE_PATH . '/controller/' . $controllerName . 'Controller.php');
     }
-    
-    /**
-     * Méthode permettant de donner le chemin du controller à partir de son nom
-     * @return void
-     */
-    private function setControllerPath()
+
+    private static function GetControllerClassName(string $pathName): string
     {
-        $this->controllerPath = Settings::BASE_PATH . '/controller/' . $this->controllerName . '.php';
+        return $pathName . "Controller";
     }
-    
-    /**
-     * Méthode qui vérifie si l'utilisateur est connecté
-     * @return bool
-     */
-    private function isConnected(): bool
+
+    private static function IsValidAction(Controller $controller, string $actionName): bool
     {
-        if (true) { //AuthController::isLoggedIn();
-            return true;
-        } else {
-            Router::redirectTo('Login');
-            return false;
-        }
+        return method_exists($controller, $actionName);
     }
-    
-    /**
-     * Méthode static du Router permettant de rediriger vers une page
-     * @param  string $controllerToRedirect
-     * @param  string $actionToRedirect [optional]
-     * @return void
-     */
-    static function redirectTo(string $controllerToRedirect, string $actionToRedirect = 'default')
+
+
+    public static function RedirectTo(string $controllerNameToRedirect, string $actionToRedirect = 'default', array $params = array()): void
     {
-        $controllerToRedirect = $controllerToRedirect . "Controller";
-        $controller = new $controllerToRedirect();
-        $controller->$actionToRedirect();
-    }
-    
-    /**
-     * Méthode permettant d'appeler le controller à partir de son nom
-     * @return void
-     */
-    private function callController()
-    {
-        if ($this->controllerName === 'controller') {
-            Router::redirectTo('NotFound');
-        } else {
-            $controllerFullName = $this->controllerName;
-        }
-        $this->controller = new $controllerFullName();
-    }
-    
-    /**
-     * Appelle l'action du controller instancié
-     * @return void
-     */
-    private function callAction()
-    {
-        $actualActionName = $this->actionName;
-        $this->controller->$actualActionName();
+        $decodedURL = new DecodedURL();
+        $decodedURL->setControllerName($controllerNameToRedirect);
+        $decodedURL->setActionName($actionToRedirect);
+        $decodedURL->setParam($params);
+        Router::callController($decodedURL);
     }
 }
