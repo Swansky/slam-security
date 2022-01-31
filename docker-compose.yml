@@ -1,35 +1,39 @@
-version: '3'
+version: '3.9'
 
 services:
-  dbflop:
+  slam-security-db:
     image: mysql:5.7
     platform: linux/x86_64
-    container_name: flop_dbflop
     volumes:
-      - db_data_flop:/var/lib/mysql
+      - ./db_data:/var/lib/mysql
       - ./mysql_log:/var/log/mysql
       - ./mysql_conf:/etc/mysql/mysql.conf.d
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: pwd_rootdb
-      MYSQL_DATABASE: flopsecurity
-      MYSQL_USER: flopsecurity
-      MYSQL_PASSWORD: pwd_flopsecurity
+      MYSQL_ROOT_PASSWORD: example
 
-  flopsecurity_webserver:
+  slam_security_webserver:
     depends_on:
-      - dbflop
-    container_name: flop_webserver
+      - db
     build: .
     volumes:
       - ./webserver:/var/www/html
     ports:
       - 82:80
-    restart: always
+
     environment:
-      MYSQL_DB_HOST: dbflop:3306
-      CATA_DB_USER: flopsecurity
-      CATA_DB_PASSWORD: pwd_flopsecurity
+      MYSQL_DB_HOST: slam-security-db:3306
+      CATA_DB_USER: root
+      CATA_DB_PASSWORD: example
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8088:80
+    environment:
+      - PMA_ARBITRARY=1
 
 volumes:
   db_data_flop:

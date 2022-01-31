@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 class Router
 {
-    private AuthManager $authManager;
+    private SessionManager $authManager;
 
     public function __construct()
     {
-        $this->authManager = AuthManager::getInstance();
+        $this->authManager = SessionManager::GetInstance();
         $this->routing();
     }
 

@@ -1,8 +1,7 @@
 {
-    "host": "localhost",
+    "host": "slam-security-db",
     "databasename": "slam_security",
     "charset": "utf8",
-    "user": "slamuser",
-    "password": "test",
-    "options": {}
+    "user": "root",
+    "password": "example"
 }

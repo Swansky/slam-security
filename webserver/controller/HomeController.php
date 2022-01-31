@@ -12,7 +12,6 @@ class HomeController implements Controller
 
     public function default()
     {
-        var_dump("homeController");
         $this->loadView();
     }
 

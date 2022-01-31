@@ -27,14 +27,14 @@
         <div class="col"></div>
     </div>
 
-    <form action="/auth/login" method="post">
+    <form method="post">
         <div class="row mt-5 mb-3">
             <div class="col"></div>
             <div class="col-6">
                 <div class="input-group">
                     <span class="input-group-text" id="basic-addon1">@</span>
                     <input type="text" name="email" class="form-control" placeholder="email" aria-label="email"
-                           aria-describedby="basic-addon1">
+                           aria-describedby="basic-addon1" required>
                 </div>
             </div>
             <div class="col"></div>
@@ -42,7 +42,7 @@
         <div class="row mt-5 mb-3">
             <div class="col"></div>
             <div class="col-6">
-                <input type="password" name="password" class="form-control" id="inputPassword" placeholder="password">
+                <input type="password" name="password" class="form-control" id="inputPassword" placeholder="password" required>
             </div>
             <div class="col"></div>
         </div>

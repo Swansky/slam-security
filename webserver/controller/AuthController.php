@@ -1,75 +1,58 @@
 <?php
 declare(strict_types=1);
-session_start();
-class User{
 
-    private string $password;
-    private string $username;
-    private int $id;
-    public function __construct(){
-        $this->username = 'admin';
-        $this->password = 'admin';
-        $this->id = 1;
-    }
-    public function getUsername(): string{
-        return $this->username;
-    }
-    public function getPassword(): string{
-        return $this->password;
-    }
-    public function getId(): int{
-        return $this->id;
-    }
-}
-class AuthController extends Controller
+class AuthController implements Controller
 {
-    private User $user;
-
+    private SessionManager $authManager;
 
     public function __construct()
     {
-        $this->user = new User();
-
+        $this->authManager = SessionManager::GetInstance();
     }
-    /**
-     * @throws Exception
-     */
+
+
     public function login(): void
     {
-
-        if (isset($_SESSION['utilisateur_id'])) {
+        if ($this->authManager->isConnected()) {
             Router::RedirectTo('home');
+            return;
         }
-        $username = ParamUtils::findPOSTParam('username');
-        $password = ParamUtils::findPOSTParam('password');
+        if (isset($_POST["email"]) && isset($_POST["password"])) {
+            $username = ParamUtils::findPOSTParam('email');
+            $password = ParamUtils::findPOSTParam('password');
 
-        if (empty($username) || empty($password)) {
+            if (empty($username) || empty($password)) {
+                ViewManager::view("login-template",
+                    ["ERROR_MESSAGE" => "Empty credentials",
+                        "HIDDEN" => ""]);
+                return;
+            }
+            $user = $this->getUser($username);
+            if (!is_null($user)) {
+                if ($user->checkCredentials($username, $password)) {
+                    $this->authManager->createSessionFor($user);
+                    Router::RedirectTo("Home");
+                    return;
+                }
+            }
             ViewManager::view("login-template",
-                ["ERROR_MESSAGE" => "Empty credentials",
-                    "HIDDEN" => ""]);
+                ["ERROR_MESSAGE" => "Invalid Credentials"]);
+            return;
         }
 
-        if ($this->checkCredentials($username, $password)) {
-            $user = $this->getUser($username, $password);
-            $_SESSION['utilisateur_id'] = $user->getId();
-            $_COOKIE["token"] = md5($user->getUsername() . ":" . $user->getPassword());
-            header("Location:home");
-        }
         ViewManager::view("login-template",
             ["ERROR_MESSAGE" => ""]);
     }
 
     public function logout(): void
     {
-        session_destroy();
-        unset($_COOKIE["token"]);
-        header("Location:login");
+        $this->authManager->deleteSession();
         Router::RedirectTo('login');
-        unset($this);
     }
 
-    private function checkCredentials(string $username, string $password): bool
+    private function checkCredentials(User $user, string $username, string $password): bool
     {
+
         return true;
     }
 
@@ -77,19 +60,23 @@ class AuthController extends Controller
     {
         $this->login();
     }
-    public function createCookie(){
-        setcookie('auth',"",3600, "","",false,true);
-    }
 
-    public function getUser(string $username, string $password) : User
+    public function getUser(string $email): ?User
     {
         $user = new User();
-        $user->getUsername($username);
-        $user->getPassword($password);
-        return $user;
+        if ($user->findByEmail($email)) {
+            return $user;
+        }
+        return null;
     }
+
     static function isLoggedIn(): bool
     {
         return isset($_SESSION['utilisateur_id']);
+    }
+
+    public function setArgs(array $args = array())
+    {
+        // TODO: Implement setArgs() method.
     }
 }
