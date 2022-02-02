@@ -39,7 +39,7 @@ class Router
                 $decodedURL->setActionName($url_split[1]);
                 if (sizeof($url_split) > 2) {
                     $param = array();
-                    for ($i = 2; $i <= sizeof($url_split); $i++) {
+                    for ($i = 2; $i <= sizeof($url_split)-1; $i++) {
                         $param[] = $url_split[$i];
                     }
                     $decodedURL->setParam($param);

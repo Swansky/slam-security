@@ -47,7 +47,7 @@ class AuthController implements Controller
     public function logout(): void
     {
         $this->authManager->deleteSession();
-        Router::RedirectTo('login');
+        Router::RedirectTo('auth','login');
     }
 
     private function checkCredentials(User $user, string $username, string $password): bool
