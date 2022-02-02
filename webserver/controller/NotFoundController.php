@@ -1,7 +1,7 @@
 <?php
 
 
-class NotFoundController implements Controller
+class NotFoundController extends Controller
 {
 
     public function loadView()
@@ -15,8 +15,4 @@ class NotFoundController implements Controller
         $this->loadView();
     }
 
-    public function setArgs(array $args = array())
-    {
-        //useless
-    }
 }

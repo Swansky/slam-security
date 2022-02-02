@@ -19,8 +19,8 @@ class User extends Model
     public function create(): void
     {
         $stmt1 = $this->pdo->prepare(QUERY_INSERT);
-        $stmt1->bindValue(':usr_email', $this->email);
-        $stmt1->bindValue(':usr_password', $this->password);
+        $stmt1->bindValue(':email', $this->email);
+        $stmt1->bindValue(':password', $this->password);
         if ($stmt1->execute()) {
             $this->id = (int)$this->pdo->lastInsertId();
         }

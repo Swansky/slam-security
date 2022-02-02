@@ -15,20 +15,35 @@
 {% extends navbar-template %}
 <div class="container-lg col-lg-3">
 
-    <form method="POST">
-        <label for="fname">Title :</label><br>
-        <input type="text" id="ftitle" value="title"><br><br>
-        <label for="lname">Content :</label><br>
-        <textarea type="text" id="fcontent" value="content"></textarea><br><br>
-        <button type="submit" value="Submit">ChargePourBase</button>
-    </form>
+    <div class="row mt-5">
+        <div class="col"></div>
+        <div class="card" style="width: 32rem;">
+            <div class="card-body">
+                <h3 class="card-title">Ajouter un commentaire</h3>
+                <p class="card-text">
+                <form method="post">
+                    <div class="mb-3">
+                        <input type="text" name="username" class="form-control" id="exampleFormControlInput1" placeholder="Votre pseudo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlTextarea1" class="form-label">Commentaire</label>
+                        <textarea name="content" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                <p class="error">{{ $errorMessage }}</p>
+                    <div class="mb-1">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+                </p>
+            </div>
+        </div>
     <div class="list-group list-group-flush">
-
         {% foreach($comments as $com): %}
         <p class="list-group-item list-group-item">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ $com["title"] }}</h5>
-                <small>{{ $com["date"] }}</small>
+
+                <h5 class="mb-1">{{ $com["username"] }}</h5>
+                <small>{{ $com["date"]->format( 'd-m-Y H:i:s')}}</small>
             </div>
             <p class="mb-1">{{ $com["content"] }}</p>
         </p>

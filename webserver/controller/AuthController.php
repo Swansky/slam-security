@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-class AuthController implements Controller
+class AuthController extends Controller
 {
     private SessionManager $authManager;
 
@@ -47,7 +47,7 @@ class AuthController implements Controller
     public function logout(): void
     {
         $this->authManager->deleteSession();
-        Router::RedirectTo('auth','login');
+        Router::RedirectTo('auth', 'login');
     }
 
     private function checkCredentials(User $user, string $username, string $password): bool
@@ -75,8 +75,4 @@ class AuthController implements Controller
         return isset($_SESSION['utilisateur_id']);
     }
 
-    public function setArgs(array $args = array())
-    {
-        // TODO: Implement setArgs() method.
-    }
 }

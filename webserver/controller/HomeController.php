@@ -1,8 +1,8 @@
 <?php
 
-class HomeController implements Controller
+class HomeController extends Controller
 {
-    private array $args = array();
+
 
     public function loadView()
     {
@@ -15,8 +15,5 @@ class HomeController implements Controller
         $this->loadView();
     }
 
-    public function setArgs(array $args = array())
-    {
-        $this->args = $args;
-    }
+
 }

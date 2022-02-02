@@ -1,8 +1,13 @@
 <?php
 
-interface Controller
+abstract class Controller
 {
-    public function default();
+    protected array $args = array();
 
-    public function setArgs(array $args = array());
+    public abstract function default();
+
+    public function setArgs(array $args = array())
+    {
+        $this->args = $args;
+    }
 }
