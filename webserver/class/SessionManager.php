@@ -14,14 +14,13 @@ class SessionManager
     public function createSessionFor(User $user): void
     {
         $_SESSION["logged"] = true;
-        $_SESSION["user"] = $user;
+        $_SESSION["userID"] = $user->getId();
     }
 
     public function deleteSession(): void
     {
         session_destroy();
     }
-
 
 
     public static function GetInstance(): SessionManager
