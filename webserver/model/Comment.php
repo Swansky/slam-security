@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const QUERY_INSERT = "INSERT INTO comment (id, username, comment,date) VALUES (NULL, :username, :comment,:date) ";
+const QUERY_INSERT = "INSERT INTO comment (id, username, comment,date,imageID) VALUES (NULL, :username, :comment,:date,:imageID) ";
 const QUERY_DELETE = "DELETE FROM comment WHERE id = :id ";
 const QUERY_INDEX = "SELECT * FROM comment";
 
@@ -11,7 +11,7 @@ class Comment extends Model
     private string $username;
     private string $content;
     private DateTime $date;
-
+    private ?int $imageId = null;
 
     public function create(): void
     {
@@ -19,6 +19,7 @@ class Comment extends Model
         $stmt1->bindValue(':username', $this->username);
         $stmt1->bindValue(':comment', $this->content);
         $stmt1->bindValue(':date', $this->date->format( 'Y-m-d H:i:s'),PDO::PARAM_STR);
+        $stmt1->bindValue(':imageID', $this->imageId);
         if ($stmt1->execute()) {
             $this->id = (int)$this->pdo->lastInsertId();
         }
@@ -116,6 +117,22 @@ class Comment extends Model
     public function setDate(DateTime $date): void
     {
         $this->date = $date;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getImageId(): ?int
+    {
+        return $this->imageId;
+    }
+
+    /**
+     * @param int|null $imageId
+     */
+    public function setImageId(?int $imageId): void
+    {
+        $this->imageId = $imageId;
     }
 
 
