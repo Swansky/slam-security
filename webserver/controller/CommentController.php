@@ -8,7 +8,6 @@ class CommentController extends Controller
 
     public function loadView()
     {
-
         $comment = new Comment();
         $errorMessage = "";
         if (isset($_POST["username"]) && isset($_POST["content"]) && isset($_FILES["image"])) {
@@ -23,8 +22,9 @@ class CommentController extends Controller
                     $file = fopen($MY_FILE, 'r');
                     $file_contents = fread($file, filesize($MY_FILE));
                     fclose($file);
-                    $file_contents = addslashes($file_contents);
+                    //$file_contents = addslashes($file_contents);
                     $image = new Image();
+                    $image->setImageType($_FILES["image"]["type"]);
                     $image->setImageData($file_contents);
                     $image->create();
                     $comment->setImageId($image->getId());
@@ -42,7 +42,8 @@ class CommentController extends Controller
             $viewComment = array(
                 "username" => $commentElement->getUsername(),
                 "content" => $commentElement->getContent(),
-                "date" => $commentElement->getDate()
+                "date" => $commentElement->getDate(),
+                "image" => $this->generateImageTag($commentElement)
             );
             $commentsResult[] = $viewComment;
         }
@@ -53,6 +54,17 @@ class CommentController extends Controller
     public function default()
     {
         $this->loadView();
+    }
+
+    private function generateImageTag(Comment $commentElement): string
+    {
+        if ($commentElement->getImageId() !== null) {
+            $image = new Image();
+            $image->setId($commentElement->getImageId());
+            $image->findById();
+            return '<img src="data:' . $image->getImageType() . ';base64,' . base64_encode($image->getImageData()) . '"/>';
+        }
+        return "";
     }
 
 }

@@ -37,6 +37,7 @@ class Comment extends Model
                 $comment->setId($row["id"]);
                 $comment->setUsername($row["username"]);
                 $comment->setContent($row["comment"]);
+                $comment->setImageId($row["imageId"]);
                 $comment->setDate(DateTime::createFromFormat('Y-m-d H:i:s',$row["date"]));
                 array_push($comments,$comment);
             }
@@ -58,7 +59,7 @@ class Comment extends Model
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): int|null
     {
         return $this->id;
     }
