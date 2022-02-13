@@ -4,7 +4,7 @@ class CommentController extends Controller
 {
     private const MAX_SIZE_CONTENT = 2000;
     private const MAX_SIZE_USERNAME = 255;
-    private const TEMP_UPLOAD_DIR = 'webserver/cache/images';
+    private const MAX_SIZE_KO_IMAGE = 9_000_000;
 
     public function loadView()
     {
@@ -14,7 +14,7 @@ class CommentController extends Controller
             $username = ParamUtils::findPOSTParam('username');
             $content = ParamUtils::findPOSTParam('content');
             if (strlen($username) > self::MAX_SIZE_USERNAME || strlen($content) > self::MAX_SIZE_CONTENT ||
-                strlen($username) == 0 || strlen($content) == 0 || $_FILES["image"]["size"] > 9_000_000) {
+                strlen($username) == 0 || strlen($content) == 0 || $_FILES["image"]["size"] > self::MAX_SIZE_KO_IMAGE) {
                 $errorMessage = "invalid size of message or username";
             } else {
                 if ($_FILES["image"]["size"] > 0) {
@@ -22,7 +22,6 @@ class CommentController extends Controller
                     $file = fopen($MY_FILE, 'r');
                     $file_contents = fread($file, filesize($MY_FILE));
                     fclose($file);
-                    //$file_contents = addslashes($file_contents);
                     $image = new Image();
                     $image->setImageType($_FILES["image"]["type"]);
                     $image->setImageData($file_contents);

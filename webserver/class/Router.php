@@ -58,7 +58,6 @@ class Router
 
         } else {
             $controllerClassName = Router::GetControllerClassName($decodedURL->getControllerName());
-            /** @var Controller $controller */
             $controller = new $controllerClassName();
             if (Router::IsValidAction($controller, $decodedURL->getActionName())) {
                 $actionName = $decodedURL->getActionName();
