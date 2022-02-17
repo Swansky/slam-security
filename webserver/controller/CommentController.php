@@ -19,14 +19,20 @@ class CommentController extends Controller
             } else {
                 if ($_FILES["image"]["size"] > 0) {
                     $MY_FILE = $_FILES['image']['tmp_name'];
-                    $file = fopen($MY_FILE, 'r');
-                    $file_contents = fread($file, filesize($MY_FILE));
-                    fclose($file);
-                    $image = new Image();
-                    $image->setImageType($_FILES["image"]["type"]);
-                    $image->setImageData($file_contents);
-                    $image->create();
-                    $comment->setImageId($image->getId());
+                    $file_info_type = finfo_open(FILEINFO_MIME_TYPE);
+                    $type = finfo_file($file_info_type, $MY_FILE);
+                    if (in_array($type, array("image/png", "image/jpeg"))) {
+                        $file = fopen($MY_FILE, 'r');
+                        $file_contents = fread($file, filesize($MY_FILE));
+                        fclose($file);
+                        $image = new Image();
+                        $image->setImageType($_FILES["image"]["type"]);
+                        $image->setImageData($file_contents);
+                        $image->create();
+                        $comment->setImageId($image->getId());
+                    } else {
+                        $errorMessage = "invalid image";
+                    }
                 }
                 $comment->setUsername($username);
                 $comment->setContent($content);

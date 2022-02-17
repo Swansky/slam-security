@@ -50,12 +50,6 @@ class AuthController extends Controller
         Router::RedirectTo('auth', 'login');
     }
 
-    private function checkCredentials(User $user, string $username, string $password): bool
-    {
-
-        return true;
-    }
-
     public function default()
     {
         $this->login();
@@ -68,11 +62,6 @@ class AuthController extends Controller
             return $user;
         }
         return null;
-    }
-
-    static function isLoggedIn(): bool
-    {
-        return isset($_SESSION['utilisateur_id']);
     }
 
 }
